@@ -69,6 +69,11 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
+const handleClick = (event) => {
+	event.preventDefault();
+	console.log('HOla Chuchínnnnnnnn');
+};
+
 const Login = () => {
 	const classes = useStyles();
 
@@ -119,6 +124,7 @@ const Login = () => {
 							variant="contained"
 							color="primary"
 							className={classes.submit}
+							onClick={handleClick}
 						>
 							Sign In
 						</Button>
