@@ -14,7 +14,8 @@
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
-    "react-use-localstorage": "^3.4.3"
+    "react-use-localstorage": "^3.4.3",
+    "recharts": "^1.6.2"
   },
   "scripts": {
     "start": "react-scripts start",

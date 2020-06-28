@@ -2,7 +2,6 @@ import Avatar from "@material-ui/core/Avatar";
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import Checkbox from "@material-ui/core/Checkbox";
-import CssBaseline from "@material-ui/core/CssBaseline";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Grid from "@material-ui/core/Grid";
 import Link from "@material-ui/core/Link";
@@ -20,7 +19,7 @@ import {
   DialogContentText,
   DialogActions,
 } from "@material-ui/core";
-import { withRouter } from "react-router-dom";
+import { withRouter, Redirect } from "react-router-dom";
 import useLocalStorage from "react-use-localstorage";
 
 function Copyright() {
@@ -82,8 +81,10 @@ const useStyles = makeStyles((theme) => ({
 const Login = ({ history }) => {
   const classes = useStyles();
   const BASEURL = "https://matrix.imperiomonarcas.com";
-  const ENDPOINT = "/_matrix/client/r0/login";
-  const URL = `${BASEURL}${ENDPOINT}`;
+  const ENDPOINT_LOGIN = "/_matrix/client/r0/login";
+  const ENDPOINT_USER = "/_synapse/admin/v2/users";
+  const URL_LOGIN = `${BASEURL}${ENDPOINT_LOGIN}`;
+  const URL_USER = `${BASEURL}${ENDPOINT_USER}`;
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -91,7 +92,8 @@ const Login = ({ history }) => {
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [token, setToken] = useLocalStorage("timestamp", "");
+  const [token, setToken] = useLocalStorage("timestamp", null);
+  const [user, setUser] = useLocalStorage("user", null);
 
   const handleClickLogin = (event) => {
     event.preventDefault();
@@ -126,10 +128,22 @@ const Login = ({ history }) => {
         password: password,
       };
 
-      const response = await axios.post(URL, data);
+      //const response = await axios.post(URL, data);
+      const response = await axios.post(URL_LOGIN, data);
       console.log(response);
       setToken(response.data.access_token);
-      history.replace("/dashboard");
+
+      const esAdministrador = await validarAdministrador(
+        response.data.user_id,
+        response.data.access_token
+      );
+      if (esAdministrador) {
+        history.replace("/dashboard");
+      } else {
+        setErrorMessage("No eres administrador");
+        setHasError(true);
+        console.error("Usuario no es administrador!!!");
+      }
     } catch (error) {
       const mensaje_detallado = error.response.data.error;
       setErrorMessage(mensaje_detallado);
@@ -137,6 +151,29 @@ const Login = ({ history }) => {
       console.error(mensaje_detallado);
     }
   }
+
+  const validarAdministrador = async (user_id, access_token) => {
+    try {
+      const config = {
+        headers: { Authorization: `Bearer ${access_token}` },
+      };
+      const response = await axios.get(`${URL_USER}/${user_id}`, config);
+      console.log(response);
+      // la siguiente condición nunca pasa, pero se deja por seguridad.
+      if (
+        !!response.data &&
+        !!response.data.admin &&
+        response.data.admin === 1
+      ) {
+        setUser(JSON.stringify(response.data));
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  };
 
   return (
     <>
@@ -159,7 +196,6 @@ const Login = ({ history }) => {
         </DialogActions>
       </Dialog>
       <Grid container component="main" className={classes.root}>
-        <CssBaseline />
         <Grid item xs={false} sm={4} md={7} className={classes.logoMarina}>
           <div className={classes.imagenLogo}></div>
         </Grid>
