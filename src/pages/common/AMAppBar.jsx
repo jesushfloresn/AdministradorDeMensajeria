@@ -92,14 +92,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const AMAppBar = () => {
+const AMAppBar = ({ open, handleDrawerOpen, titulo }) => {
   const classes = useStyles();
-
-  const [open, setOpen] = useState(true);
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
 
   return (
     <AppBar
@@ -123,7 +117,7 @@ const AMAppBar = () => {
           noWrap
           className={classes.title}
         >
-          Dashboard
+          {titulo}
         </Typography>
         <IconButton color="inherit">
           <Badge badgeContent={4} color="secondary">

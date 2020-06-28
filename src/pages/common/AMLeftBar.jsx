@@ -89,12 +89,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const AMLeftBar = () => {
+const AMLeftBar = ({ open, handleDrawerClose }) => {
   const classes = useStyles();
-  const [open, setOpen] = useState(true);
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
+
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
   return (
@@ -106,7 +103,7 @@ const AMLeftBar = () => {
       open={open}
     >
       <div className={classes.toolbarIcon}>
-        <IconButton onClick={handleDrawerOpen}>
+        <IconButton onClick={handleDrawerClose}>
           <ChevronLeftIcon />
         </IconButton>
       </div>
