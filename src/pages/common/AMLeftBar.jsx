@@ -110,7 +110,6 @@ const AMLeftBar = ({ open, handleDrawerClose }) => {
       <Divider />
       <List>{mainListItems}</List>
       <Divider />
-      <List>{secondaryListItems}</List>
     </Drawer>
   );
 };

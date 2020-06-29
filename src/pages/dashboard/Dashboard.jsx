@@ -167,19 +167,6 @@ export default function Dashboard({ history }) {
             {/* Chart */}
             <Grid item xs={12} md={8} lg={9}>
               <Paper className={fixedHeightPaper}>
-                <div>
-                  <div>
-                    <div>
-                      {!!listaUsuarios && listaUsuarios.length > 0 ? (
-                        <div>{listaUsuarios.map((item) => item.name)}</div>
-                      ) : (
-                        <div>No hay usuarios</div>
-                      )}
-                      <ul></ul>
-                    </div>
-                  </div>
-                </div>
-
                 <Chart listaUsuarios={listaUsuarios} />
               </Paper>
             </Grid>
