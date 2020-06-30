@@ -17,7 +17,7 @@ const App = () => {
           exact
           path="/dashboard"
           component={Dashboard}
-          titulo={"hola chucho"}
+          titulo={"Aplicación de mensajería"}
         />
         <Route component={NotFound} />
       </Switch>

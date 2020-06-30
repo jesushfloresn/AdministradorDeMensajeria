@@ -13,8 +13,10 @@ import Orders from "./Orders.jsx";
 import AMDrawerPaper from "../common/AMDrawerPaper";
 import useLocalStorage from "react-use-localstorage";
 import axios from "axios";
-import { Button } from "@material-ui/core";
+import { Button, ButtonBase } from "@material-ui/core";
+import PersonIcon from "@material-ui/icons/Person";
 
+/*
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
@@ -27,12 +29,13 @@ function Copyright() {
     </Typography>
   );
 }
+*/
 
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: "flex",
+    flexGrow: 1,
   },
   toolbar: {
     paddingRight: 24, // keep right padding when drawer closed
@@ -100,12 +103,14 @@ const useStyles = makeStyles((theme) => ({
   },
   paper: {
     padding: theme.spacing(2),
-    display: "flex",
-    overflow: "auto",
-    flexDirection: "column",
+    textAlign: "center",
+    color: theme.palette.text.secondary,
   },
   fixedHeight: {
     height: 240,
+  },
+  userCard: {
+    cursor: "pointer",
   },
 }));
 
@@ -116,6 +121,7 @@ export default function Dashboard({ history }) {
   const [listaUsuarios, setListaUsuarios] = useState(null);
   const BASEURL = "https://matrix.imperiomonarcas.com";
   const ENDPOINT_USER = "/_synapse/admin/v2/users";
+  const ENDPOINT_ALLUSERS = "/_synapse/admin/v2/users?deactivated=true";
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const classes = useStyles();
@@ -141,7 +147,10 @@ export default function Dashboard({ history }) {
       const config = {
         headers: { Authorization: `Bearer ${token}` },
       };
-      const response = await axios.get(`${BASEURL}${ENDPOINT_USER}`, config);
+      const response = await axios.get(
+        `${BASEURL}${ENDPOINT_ALLUSERS}`,
+        config
+      );
       if (response.data.total > 0) {
         setListaUsuarios(response.data.users);
       }
@@ -163,29 +172,60 @@ export default function Dashboard({ history }) {
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
         <Container maxWidth="lg" className={classes.container}>
-          <Grid container spacing={3}>
-            {/* Chart */}
-            <Grid item xs={12} md={8} lg={9}>
-              <Paper className={fixedHeightPaper}>
-                <Chart listaUsuarios={listaUsuarios} />
-              </Paper>
+          {!!listaUsuarios ? (
+            <Grid container spacing={2}>
+              {listaUsuarios.map((user) => (
+                <Grid item xs={12} md={6} lg={6} key={user.name}>
+                  <Paper className={classes.paper}>
+                    <Grid container spacing={2} className={classes.userCard}>
+                      <Grid item>
+                        <ButtonBase className={classes.image}>
+                          <PersonIcon />
+                        </ButtonBase>
+                      </Grid>
+                      <Grid item xs={12} sm container>
+                        <Grid item xs container direction="column" spacing={2}>
+                          <Grid item xs>
+                            <Typography gutterBottom variant="subtitle1">
+                              <strong>Usuario: </strong>
+                              {user.name}
+                            </Typography>
+
+                            <Typography variant="body2" color="textSecondary">
+                              {!!user && user.admin == 0 ? (
+                                <strong>Usuario de mensajería</strong>
+                              ) : (
+                                <strong>Usuario Administrador</strong>
+                              )}
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                        <Grid item>
+                          <Typography variant="body2" gutterBottom>
+                            {!!user && user.deactivated == 0 ? (
+                              <strong>Activo</strong>
+                            ) : (
+                              <i>Inactivo</i>
+                            )}
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </Paper>
+                </Grid>
+              ))}
             </Grid>
-            {/* Recent Deposits */}
-            <Grid item xs={12} md={4} lg={3}>
-              <Paper className={fixedHeightPaper}>
-                <Deposits />
-              </Paper>
+          ) : (
+            <Grid container spacing={1}>
+              <Grid item xs={12} md={12} lg={12}>
+                <Paper className={classes.paper}>
+                  <div>
+                    <h4>No existen usuarios</h4>
+                  </div>
+                </Paper>
+              </Grid>
             </Grid>
-            {/* Recent Orders */}
-            <Grid item xs={12}>
-              <Paper className={classes.paper}>
-                <Orders />
-              </Paper>
-            </Grid>
-          </Grid>
-          <Box pt={4}>
-            <Copyright />
-          </Box>
+          )}
         </Container>
       </main>
     </div>
